@@ -1,0 +1,25 @@
+@@ -6,7 +6,7 @@ on:
+      - published
+
+jobs:
+  attach-apks:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+@@ -21,23 +21,15 @@ jobs:
+        with:
+          ref: ${{ env.GITHUB_REF }}
+
+      - name: Build and attach APKs to release
+      - name: Build
+        shell: bash {0}
+        env:
+          PACKAGE_VARIANT: ${{ matrix.package_variant }}
+        run: |
+          exit_on_error() {
+              echo "$1"
+              echo "Deleting '$RELEASE_VERSION_NAME' release and '$GITHUB_REF' tag"
+              hub release delete "$RELEASE_VERSION_NAME"
+              git push --delete origin "$GITHUB_REF"
+              exit 1
