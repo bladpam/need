@@ -1,0 +1,30 @@
+/*jslint vars: true , plusplus: true, continue:true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
+/*global $, Folder */
+
+$.__bodymovin.assetsStorage = (function () {
+
+  var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+  var JSON = $.__bodymovin.JSON;
+
+  function createFilePath(compositionUid) {
+    var appTemporaryFolder = new Folder(Folder.temp.absoluteURI);
+    appTemporaryFolder.changePath('Bodymovin');
+    appTemporaryFolder.changePath(compositionUid);
+    if (!appTemporaryFolder.exists) {
+        if (!appTemporaryFolder.create()) {
+          // TODO: address filder failing to be created
+          return null;
+        }
+    }
+    var file = new File(appTemporaryFolder.absoluteURI);
+    file.changePath('assets.json');
+    return file;
+  }
+
+  function filterStoringAssets(assets) {
+    var i  = 0;
+    var len = assets.length;
+    var storingAssets = [];
+    for (i = 0; i < len; i += 1) {
+      if (!assets[i].layers) {
+        storingAssets.push(assets[i]);
