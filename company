@@ -1,0 +1,30 @@
+# -*- coding: utf-8 -*-
+from odoo import api, fields, models, _, tools
+from odoo.osv import expression
+from odoo.exceptions import UserError, ValidationError
+from bisect import bisect_left
+from collections import defaultdict
+import re
+
+ACCOUNT_REGEX = re.compile(r'(?:(\S*\d+\S*))?(.*)')
+ACCOUNT_CODE_REGEX = re.compile(r'^[A-Za-z0-9.]+$')
+
+class AccountAccount(models.Model):
+    _name = "account.account"
+    _inherit = ['mail.thread']
+    _description = "Account"
+    _order = "is_off_balance, code, company_id"
+    _check_company_auto = True
+
+    @api.constrains('account_type', 'reconcile')
+    def _check_reconcile(self):
+        for account in self:
+            if account.account_type in ('asset_receivable', 'liability_payable') and not account.reconcile:
+                raise ValidationError(_('You cannot have a receivable/payable account that is not reconcilable. (account code: %s)', account.code))
+
+    @api.constrains('account_type')
+    def _check_account_type_unique_current_year_earning(self):
+        result = self._read_group(
+            domain=[('account_type', '=', 'equity_unaffected')],
+            fields=['company_id', 'ids:array_agg(id)'],
+            groupby=['company_id'],
