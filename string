@@ -1,0 +1,26 @@
+parameters:
+- name: bucketGCP
+  type: string
+  default: ""
+- name: cacheTestResults
+  displayName: "Cache test results"
+  type: boolean
+  default: true
+- name: concurrencyChecks
+  displayName: "Checks concurrency"
+  type: number
+  default: 10
+
+# Auth
+- name: authGithub
+  type: string
+  default: ""
+- name: authGCP
+  type: string
+  default: ""
+
+- name: runChecks
+  displayName: "Run checks"
+  type: string
+  default: true
+
