@@ -1,0 +1,40 @@
+  const PREFIX = process.env['INPUT_PREFIX'] || `${os.homedir()}/.tea`
+  const TEA_DIR = (() => {
+    let TEA_DIR = process.env['INPUT_SRCROOT']
+    if (!TEA_DIR) return
+    TEA_DIR = TEA_DIR.trim()
+    if (!TEA_DIR) return
+    if (!TEA_DIR.startsWith("/")) {
+      // for security this must be an absolute path
+      TEA_DIR = `${process.cwd()}/${TEA_DIR}`
+    }
+    return path.normalize(TEA_DIR)
+  })()
+
+  const additional_pkgs = []
+  for (let key in process.env) {
+    if (key.startsWith("INPUT_+")) {
+      const value = process.env[key]
+      if (key == 'INPUT_+') {
+        for (const item of value.split(/\s+/)) {
+          if (item.trim()) {
+            additional_pkgs.push(`+${item}`)
+      }}} else {
+        key = key.slice(6).toLowerCase()
+        additional_pkgs.push(key+value)
+  }}}
+
+  // we build to /opt and special case this action so people new to
+  // building aren’t immediatelyt flumoxed
+  if (PREFIX == '/opt' && os.platform == 'darwin') {
+    execSync('sudo chown $(whoami):staff /opt')
+  }
+
+  const midfix = (() => {
+    switch (process.arch) {
+    case 'arm64':
+      return `${process.platform}/aarch64`
+    case 'x64':
+      return `${process.platform}/x86-64`
+    default:
+      throw new Error(`unsupported platform: ${process.platform}/${process.arch}`)
